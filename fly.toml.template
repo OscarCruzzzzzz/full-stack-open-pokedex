@@ -1,0 +1,30 @@
+# Template for exercises 11.10 and 11.12.
+# `fly launch` creates the real fly.toml and the Dockerfile for you. After that,
+# copy the parts marked "ADD" into your generated fly.toml (keep your own `app` name).
+
+app = "YOUR-APP-NAME"
+
+[deploy]
+  strategy = "canary"            # ADD (11.12): only a healthy release replaces the running one
+
+[env]
+  PORT = "3000"                  # ADD (11.10): must match internal_port below
+
+[processes]
+  app = "node app.js"            # ADD (11.10): without this Fly starts the React dev server
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ["app"]
+
+  # ADD (11.12): HTTP health check
+  [[http_service.checks]]
+    grace_period = "10s"
+    interval = "30s"
+    method = "GET"
+    timeout = "5s"
+    path = "/health"

@@ -35,19 +35,9 @@ jobs:
         run: npm run test:e2e
 
       # --- Deployment (11.11, 11.14, 11.16): only on pushes/merges to main, and not when a commit message has #skip
-      - uses: superfly/flyctl-actions/setup-flyctl@master
+      - name: Trigger deployment (Render)
         if: ${{ github.event_name == 'push' && !contains(join(github.event.commits.*.message, ' '), '#skip') }}
-
-      - name: Deploy to Fly.io
-        if: ${{ github.event_name == 'push' && !contains(join(github.event.commits.*.message, ' '), '#skip') }}
-        run: flyctl deploy --remote-only
-        env:
-          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
-
-      # Render alternative: remove the two Fly.io steps above and use this one
-      # - name: Trigger deployment (Render)
-      #   if: ${{ github.event_name == 'push' && !contains(join(github.event.commits.*.message, ' '), '#skip') }}
-      #   run: curl "https://api.render.com/deploy/srv-${{ secrets.RENDER_SERVICE_ID }}?key=${{ secrets.RENDER_API_KEY }}"
+        run: curl --fail "https://api.render.com/deploy/srv-${{ secrets.RENDER_SERVICE_ID }}?key=${{ secrets.RENDER_API_KEY }}"
 
       # --- Notifications (11.18)
       - name: Notify success (new version deployed)
